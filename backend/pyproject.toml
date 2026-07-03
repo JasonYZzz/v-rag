@@ -17,6 +17,7 @@ dependencies = [
     "opentelemetry-sdk>=1.29",
     "opentelemetry-instrumentation-fastapi>=0.50b0",
     "langfuse>=2.60",
+    "python-multipart>=0.0.32",
 ]
 
 [project.optional-dependencies]

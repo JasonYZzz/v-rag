@@ -29,7 +29,9 @@ class RetrievalEngine:
 
         ids = [chunk[0] for chunk in chunks]
         vectors = [chunk[1] for chunk in chunks]
-        metadata = [chunk[2] for chunk in chunks]
+        metadata = [
+            {key: value for key, value in chunk[2].items() if key != "text"} for chunk in chunks
+        ]
         for chunk_id, _vector, meta in chunks:
             text = meta.get("text")
             if isinstance(text, str):
