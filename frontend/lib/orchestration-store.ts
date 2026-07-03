@@ -27,11 +27,14 @@ export type JsonSchemaProperty = {
 
 type OrchestrationState = GraphFlow & {
   selectedNodeId: string | null;
+  selectedEdgeId: string | null;
   dirty: boolean;
   reset: (flow: GraphFlow) => void;
   selectNode: (nodeId: string | null) => void;
+  selectEdge: (edgeId: string | null) => void;
   setNodes: (nodes: Node<FlowNodeData>[]) => void;
   setEdges: (edges: Edge<FlowEdgeData>[]) => void;
+  patchEdgeCondition: (edgeId: string, condition: string | null) => void;
   onNodesChange: (changes: NodeChange<Node<FlowNodeData>>[]) => void;
   onEdgesChange: (changes: EdgeChange<Edge<FlowEdgeData>>[]) => void;
   onConnect: (connection: Connection, condition?: string | null) => void;
@@ -45,11 +48,32 @@ export const useOrchestrationStore = create<OrchestrationState>((set, get) => ({
   nodes: [],
   edges: [],
   selectedNodeId: null,
+  selectedEdgeId: null,
   dirty: false,
-  reset: (flow) => set({ ...flow, selectedNodeId: null, dirty: false }),
-  selectNode: (selectedNodeId) => set({ selectedNodeId }),
+  reset: (flow) => set({ ...flow, selectedNodeId: null, selectedEdgeId: null, dirty: false }),
+  selectNode: (selectedNodeId) => set({ selectedNodeId, selectedEdgeId: null }),
+  selectEdge: (selectedEdgeId) => set({ selectedEdgeId, selectedNodeId: null }),
   setNodes: (nodes) => set({ nodes, dirty: true }),
   setEdges: (edges) => set({ edges, dirty: true }),
+  patchEdgeCondition: (edgeId, condition) => {
+    if (condition && !isAllowedCondition(condition)) {
+      return;
+    }
+    set((state) => ({
+      edges: state.edges.map((edge) =>
+        edge.id === edgeId
+          ? {
+              ...edge,
+              animated: Boolean(condition),
+              label: condition || undefined,
+              className: condition ? "condition-edge" : undefined,
+              data: { ...edge.data, condition },
+            }
+          : edge,
+      ),
+      dirty: true,
+    }));
+  },
   onNodesChange: (changes) =>
     set((state) => ({ nodes: applyNodeChanges(changes, state.nodes), dirty: true })),
   onEdgesChange: (changes) =>

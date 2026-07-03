@@ -86,6 +86,21 @@ button:disabled {
   outline-offset: 2px;
 }
 
+.condition-edge path {
+  stroke: var(--accent);
+  stroke-dasharray: 6 6;
+}
+
+.react-flow__edge-textbg {
+  fill: var(--surface);
+}
+
+.react-flow__edge-text {
+  fill: var(--text);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

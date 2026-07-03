@@ -24,6 +24,7 @@ export function CommandPalette() {
   const commands = useMemo<Command[]>(
     () => [
       { label: "Open Chat", hint: "Playground", action: () => router.push("/chat") },
+      { label: "Open Orchestrate", hint: "Graphs", action: () => router.push("/orchestrate") },
       { label: "Open Knowledge", hint: "Documents", action: () => router.push("/knowledge") },
       { label: "Open Config", hint: "Runtime", action: () => router.push("/config") },
       { label: "Open Health", hint: "Status", action: () => router.push("/health") },

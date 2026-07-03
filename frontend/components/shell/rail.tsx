@@ -6,6 +6,7 @@ import {
   ChatCircleText,
   Database,
   GearSix,
+  GitBranch,
   Heartbeat,
   Hexagon,
 } from "@phosphor-icons/react";
@@ -16,6 +17,7 @@ import { cn } from "@/lib/utils";
 
 const nav = [
   { href: "/chat", label: "Chat", icon: ChatCircleText },
+  { href: "/orchestrate", label: "Orchestrate", icon: GitBranch },
   { href: "/knowledge", label: "Knowledge", icon: Database },
   { href: "/config", label: "Config", icon: GearSix },
   { href: "/health", label: "Health", icon: Heartbeat },

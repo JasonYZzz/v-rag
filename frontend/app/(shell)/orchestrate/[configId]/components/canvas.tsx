@@ -21,6 +21,8 @@ type CanvasProps = {
   onNodesChange?: ReactFlowProps<Node<FlowNodeData>, Edge<FlowEdgeData>>["onNodesChange"];
   onEdgesChange?: ReactFlowProps<Node<FlowNodeData>, Edge<FlowEdgeData>>["onEdgesChange"];
   onConnect?: ReactFlowProps<Node<FlowNodeData>, Edge<FlowEdgeData>>["onConnect"];
+  onNodeClick?: ReactFlowProps<Node<FlowNodeData>, Edge<FlowEdgeData>>["onNodeClick"];
+  onEdgeClick?: ReactFlowProps<Node<FlowNodeData>, Edge<FlowEdgeData>>["onEdgeClick"];
   readonly?: boolean;
   className?: string;
 };
@@ -32,6 +34,8 @@ export function OrchestrationCanvas({
   onNodesChange,
   onEdgesChange,
   onConnect,
+  onNodeClick,
+  onEdgeClick,
   readonly = false,
   className,
 }: CanvasProps) {
@@ -59,6 +63,8 @@ export function OrchestrationCanvas({
         onNodesChange={readonly ? undefined : onNodesChange}
         onEdgesChange={readonly ? undefined : onEdgesChange}
         onConnect={readonly ? undefined : onConnect}
+        onNodeClick={readonly ? undefined : onNodeClick}
+        onEdgeClick={readonly ? undefined : onEdgeClick}
         fitView
         proOptions={{ hideAttribution: true }}
         nodesDraggable={!readonly}
