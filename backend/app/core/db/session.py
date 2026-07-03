@@ -1,5 +1,9 @@
-"""Async database session factory."""
+"""Async database session factory and migration entrypoint."""
 
+import asyncio
+from pathlib import Path
+
+from alembic.config import Config
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -7,7 +11,7 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-from app.core.db.models import Base
+from alembic import command
 
 _engine: AsyncEngine | None = None
 _session_factory: async_sessionmaker[AsyncSession] | None = None
@@ -30,10 +34,15 @@ def get_session_factory() -> async_sessionmaker[AsyncSession]:
     return _session_factory
 
 
-async def create_schema() -> None:
-    """Create metadata tables for P0 local and docker startup."""
+async def migrate_schema(database_url: str) -> None:
+    """Run Alembic migrations for application startup."""
 
-    if _engine is None:
-        raise RuntimeError("engine not initialized; call init_engine() first")
-    async with _engine.begin() as connection:
-        await connection.run_sync(Base.metadata.create_all)
+    await asyncio.to_thread(_upgrade_head, database_url)
+
+
+def _upgrade_head(database_url: str) -> None:
+    root = Path(__file__).resolve().parents[3]
+    config = Config(str(root / "alembic.ini"))
+    config.set_main_option("script_location", str(root / "alembic"))
+    config.set_main_option("sqlalchemy.url", database_url)
+    command.upgrade(config, "head")
