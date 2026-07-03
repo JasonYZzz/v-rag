@@ -1,0 +1,32 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: vrag
+      POSTGRES_PASSWORD: vrag
+      POSTGRES_DB: vrag
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vrag"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      VRAG_DATABASE_URL: postgresql+asyncpg://vrag:vrag@postgres:5432/vrag
+      VRAG_VECTOR_STORE: inmemory
+      VRAG_LLM_PROVIDER: openai
+      VRAG_OPENAI_API_KEY: ${VRAG_OPENAI_API_KEY:-}
+    ports:
+      - "8000:8000"
+
+volumes:
+  postgres_data:
