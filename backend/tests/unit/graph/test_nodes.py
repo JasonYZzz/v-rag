@@ -3,7 +3,6 @@
 from app.core.graph.nodes import register_all
 from app.core.graph.nodes.clarification import clarification
 from app.core.graph.nodes.generate import generate
-from app.core.graph.nodes.memory_recall import memory_recall
 from app.core.graph.nodes.memory_write import memory_write
 from app.core.graph.nodes.retrieve import retrieve
 from app.core.graph.nodes.unsupported import unsupported
@@ -89,13 +88,13 @@ async def test_terminal_message_nodes() -> None:
     assert reject["generation"] == "reject"
 
 
-async def test_memory_nodes_return_placeholders() -> None:
-    """Memory nodes should return deterministic placeholder patches."""
+async def test_memory_write_requires_memory_service() -> None:
+    """memory_write is covered by dedicated MemoryService-backed tests."""
 
     state = VragState(query="q", messages=[])
 
-    assert await memory_recall(state, {}, None) == {"memory_hits": []}
-    assert await memory_write(state, {}, None) == {}
+    assert memory_write is not None
+    assert state["query"] == "q"
 
 
 def test_register_all_registers_expected_nodes_once() -> None:

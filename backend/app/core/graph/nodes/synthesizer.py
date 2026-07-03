@@ -12,9 +12,10 @@ async def synthesize(state: VragState, config: dict[str, Any], services: Any) ->
     _ = config
     parts = [_stringify_result(result) for result in state.get("step_results", [])]
     summary = "\n---\n".join(parts)
+    memory_context = "\n".join(str(block) for block in state.get("context_blocks", []) if block)
     final = await services.llm.complete(
         f"Synthesize a final answer from these step results.\n"
-        f"Results:\n{summary}\n\nOriginal query: {state['query']}",
+        f"Memory:\n{memory_context}\n\nResults:\n{summary}\n\nOriginal query: {state['query']}",
         system="You are the v-rag assistant.",
     )
     return {"generation": final}

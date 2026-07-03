@@ -45,6 +45,15 @@ class FakeLLM:
         return "".join([token async for token in self.stream(prompt, system=system)])
 
 
+class FakeEmbedder:
+    @property
+    def dim(self) -> int:
+        return 1
+
+    async def embed(self, texts: list[str]) -> list[list[float]]:
+        return [[1.0] for _ in texts]
+
+
 def test_chat_emits_retrieved_event_before_tokens() -> None:
     """The first SSE frame should be the retrieved chunks event."""
 
@@ -62,6 +71,7 @@ def test_chat_emits_retrieved_event_before_tokens() -> None:
     db_session._session_factory = async_sessionmaker(engine, expire_on_commit=False)
     _globals["retrieval"] = FakeRetrieval()
     _globals["llm"] = FakeLLM()
+    _globals["embedder"] = FakeEmbedder()
     client = TestClient(app)
 
     response = client.post("/chat", json={"query": "what is alpha", "top_k": 1})

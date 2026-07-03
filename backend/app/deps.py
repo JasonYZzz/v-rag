@@ -1,7 +1,10 @@
 """Application dependency container."""
 
 from app.config import Settings, get_settings
-from app.core.db.session import init_engine
+from app.core.db.session import get_session_factory, init_engine
+from app.core.memory.bm25 import BM25Index
+from app.core.memory.service import MemoryService
+from app.core.memory.store import MemoryVectorIndex
 from app.core.provider.base import EmbeddingProvider, LLMProvider
 from app.core.provider.factory import embedder_from_settings, llm_from_settings
 from app.core.retrieval.engine import RetrievalEngine
@@ -26,6 +29,12 @@ def init_deps(settings: Settings | None = None) -> None:
     )
     register_builtin_tools(tool_registry)
     retrieval = RetrievalEngine(embedder, store)
+    memory = MemoryService(
+        get_session_factory(),
+        MemoryVectorIndex(_DynamicEmbedder(), store),
+        BM25Index(),
+        session_factory_provider=get_session_factory,
+    )
     _globals.clear()
     _globals.update(
         settings=loaded_settings,
@@ -34,6 +43,7 @@ def init_deps(settings: Settings | None = None) -> None:
         store=store,
         retrieval=retrieval,
         tools=tool_registry,
+        memory=memory,
     )
 
 
@@ -66,11 +76,29 @@ def get_services() -> object:
             "llm": _globals["llm"],
             "retrieval": _globals["retrieval"],
             "tools": _globals["tools"],
+            "memory": _globals["memory"],
         },
     )()
+
+
+def get_memory() -> MemoryService:
+    """Return the singleton MemoryService."""
+
+    return _globals["memory"]  # type: ignore[return-value]
 
 
 def get_vector_store() -> VectorStore:
     """Return the singleton vector store."""
 
     return _globals["store"]  # type: ignore[return-value]
+
+
+class _DynamicEmbedder:
+    """Embedder proxy that follows test/runtime dependency overrides."""
+
+    @property
+    def dim(self) -> int:
+        return get_embedder().dim
+
+    async def embed(self, texts: list[str]) -> list[list[float]]:
+        return await get_embedder().embed(texts)

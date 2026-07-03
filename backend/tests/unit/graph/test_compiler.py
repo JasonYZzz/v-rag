@@ -14,6 +14,7 @@ class Services:
 
     def __init__(self) -> None:
         self.llm = _LLM()
+        self.memory = _Memory()
 
 
 class _LLM:
@@ -24,6 +25,24 @@ class _LLM:
         if "Is this answer good" in prompt:
             return '{"quality": "poor", "reason": "needs retry"}'
         return f"done: {prompt}"
+
+
+class _Memory:
+    async def recall(
+        self,
+        query: str,
+        *,
+        top_k: int = 5,
+        scope: str | None = None,
+        user_id: str | None = None,
+        workspace_id: str = "default",
+    ) -> dict[str, object]:
+        _ = (query, top_k, scope, user_id, workspace_id)
+        return {"memories": [], "context": ""}
+
+    async def remember(self, input_: object) -> dict[str, object]:
+        _ = input_
+        return {"accepted": True, "memory_id": "m1"}
 
 
 def _config(raw: dict[str, Any]) -> GraphConfig:
