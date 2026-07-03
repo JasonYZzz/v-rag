@@ -1,5 +1,7 @@
 """Storage abstraction tests."""
 
+from pathlib import Path
+
 from app.core.storage.factory import build_vector_store
 
 
@@ -45,7 +47,7 @@ async def test_delete_removes_records() -> None:
     assert await store.search([1.0], top_k=5) == []
 
 
-async def test_zvec_store_indexes_and_filters(tmp_path) -> None:
+async def test_zvec_store_indexes_and_filters(tmp_path: Path) -> None:
     """Zvec adapter should index and filter using the real Python binding."""
 
     store = build_vector_store("zvec", path=str(tmp_path / "zvec"), dim=2)

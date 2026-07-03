@@ -9,6 +9,8 @@ DIRECT_THRESHOLD = 0.85
 LOW_THRESHOLD = 0.60
 
 RULES: dict[Intent, list[str]] = {
+    Intent.CHITCHAT: ["hi", "hello"],
+    Intent.KNOWLEDGE_QA: ["what", "how", "why", "文档", "产品"],
     Intent.UNSUPPORTED: ["密码", "信用卡", "删除账号"],
 }
 
@@ -20,8 +22,9 @@ INTENT_EXEMPLARS: dict[Intent, list[str]] = {
 
 
 def _rule_route(query: str) -> Intent | None:
+    normalized = query.lower()
     for intent, keywords in RULES.items():
-        if any(keyword in query for keyword in keywords):
+        if any(keyword in normalized for keyword in keywords):
             return intent
     return None
 

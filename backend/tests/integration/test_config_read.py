@@ -1,12 +1,13 @@
 """Read-only config endpoint tests."""
 
 from fastapi.testclient import TestClient
+from pytest import MonkeyPatch
 
 from app.config import get_settings
 from app.main import app
 
 
-def test_config_endpoint_returns_non_secret_values(monkeypatch) -> None:
+def test_config_endpoint_returns_non_secret_values(monkeypatch: MonkeyPatch) -> None:
     """Config endpoint should expose runtime values without leaking secrets."""
 
     monkeypatch.setenv("VRAG_OPENAI_API_KEY", "sk-secret")

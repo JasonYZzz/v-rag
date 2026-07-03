@@ -5,6 +5,7 @@ from collections.abc import Awaitable, Callable, Hashable
 from functools import lru_cache
 from typing import Any, cast
 
+from langchain_core.runnables import RunnableConfig
 from langgraph.graph import END, START, StateGraph
 
 from app.core.graph.config import GraphConfig, GraphEdgeSpec, GraphNodeSpec
@@ -128,11 +129,9 @@ def compile_graph(config: GraphConfig) -> CompiledGraph:
 
 def _wrap(
     node: GraphNodeSpec, defn: NodeDefinition
-) -> Callable[[VragState, dict[str, Any] | None], Awaitable[dict[str, Any]]]:
-    async def wrapped(
-        state: VragState, runtime_config: dict[str, Any] | None = None
-    ) -> dict[str, Any]:
-        configurable = (runtime_config or {}).get("configurable", {})
+) -> Callable[[VragState, RunnableConfig], Awaitable[dict[str, Any]]]:
+    async def wrapped(state: VragState, config: RunnableConfig) -> dict[str, Any]:
+        configurable = config.get("configurable", {})
         services = configurable.get("services")
         if defn.config_schema is not None:
             defn.config_schema.model_validate(node.config)

@@ -51,6 +51,20 @@ def get_embedder() -> EmbeddingProvider:
     return _globals["embedder"]  # type: ignore[return-value]
 
 
+def get_services() -> object:
+    """Return the graph service container."""
+
+    return type(
+        "GraphServices",
+        (),
+        {
+            "embedder": _globals["embedder"],
+            "llm": _globals["llm"],
+            "retrieval": _globals["retrieval"],
+        },
+    )()
+
+
 def get_vector_store() -> VectorStore:
     """Return the singleton vector store."""
 

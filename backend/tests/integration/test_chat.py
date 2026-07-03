@@ -3,8 +3,11 @@
 from collections.abc import AsyncIterator
 
 from fastapi.testclient import TestClient
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from app.config import Settings
+from app.core.db import session as db_session
+from app.core.db.models import Base
 from app.deps import _globals, init_deps
 from app.main import app
 from tests.unit.test_retrieval import FakeEmbedder
@@ -31,6 +34,16 @@ def test_chat_streams_sse() -> None:
 
     settings = Settings(database_url="sqlite+aiosqlite:///:memory:", vector_store="inmemory")
     init_deps(settings)
+    engine = create_async_engine("sqlite+aiosqlite:///:memory:")
+    import anyio
+
+    async def create_tables() -> None:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+
+    anyio.run(create_tables)
+    db_session._engine = engine
+    db_session._session_factory = async_sessionmaker(engine, expire_on_commit=False)
     embedder = FakeEmbedder()
     _globals["llm"] = FakeLLM()
     _globals["embedder"] = embedder

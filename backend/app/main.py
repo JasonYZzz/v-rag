@@ -11,6 +11,7 @@ from app.config import get_settings
 from app.core.db.session import migrate_schema
 from app.core.observability.tracing import init_telemetry
 from app.deps import init_deps
+from app.graph_seed import ensure_default_graph
 
 
 @asynccontextmanager
@@ -21,6 +22,10 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     init_telemetry(settings.otel_exporter_otlp_endpoint)
     init_deps()
     await migrate_schema(settings.database_url)
+    from app.core.db.session import get_session_factory
+
+    async with get_session_factory()() as session:
+        await ensure_default_graph(session)
     yield
 
 
