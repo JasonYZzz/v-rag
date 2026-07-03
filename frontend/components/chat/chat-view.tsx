@@ -6,13 +6,20 @@ import { useMemo, useState } from "react";
 import { Composer } from "@/components/chat/composer";
 import { type ChatMessage, Message } from "@/components/chat/message";
 import { RetrievalPanel } from "@/components/chat/retrieval-panel";
+import { TraceView } from "@/components/playground/trace-view";
 import { Skeleton } from "@/components/ui/skeleton";
 import { listDocs } from "@/lib/api";
+import { getRunTrace } from "@/lib/graphs-api";
 import { useChatStream } from "@/lib/sse";
 
 export function ChatView() {
   const docs = useQuery({ queryKey: ["documents"], queryFn: listDocs });
   const stream = useChatStream();
+  const trace = useQuery({
+    queryKey: ["run-trace", stream.traceId],
+    queryFn: () => getRunTrace(stream.traceId ?? ""),
+    enabled: Boolean(stream.traceId),
+  });
   const [messages, setMessages] = useState<ChatMessage[]>([]);
 
   const visibleMessages = useMemo(() => {
@@ -88,6 +95,9 @@ export function ChatView() {
       </section>
       <div className="lg:sticky lg:top-8 lg:h-fit">
         <RetrievalPanel chunks={stream.chunks} />
+        <div className="mt-4">
+          <TraceView trace={trace.data ?? null} />
+        </div>
       </div>
     </div>
   );
