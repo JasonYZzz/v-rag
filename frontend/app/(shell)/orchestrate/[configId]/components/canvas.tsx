@@ -70,6 +70,7 @@ export function OrchestrationCanvas({
         nodesDraggable={!readonly}
         nodesConnectable={!readonly}
         elementsSelectable={!readonly}
+        fitViewOptions={{ padding: 0.28, maxZoom: 1 }}
         className="bg-bg text-text"
       >
         <Background color="var(--border)" gap={24} size={1} />

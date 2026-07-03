@@ -57,8 +57,20 @@ export type GraphFlow = {
   edges: Edge<FlowEdgeData>[];
 };
 
-const nodeGapX = 280;
-const nodeGapY = 112;
+const fallbackNodeGapX = 240;
+const fallbackNodeGapY = 116;
+
+const preferredPositions: Record<string, { x: number; y: number }> = {
+  classifier: { x: 80, y: 100 },
+  memory_recall: { x: 300, y: 100 },
+  retrieve: { x: 520, y: 0 },
+  generate: { x: 740, y: 44 },
+  clarify: { x: 520, y: 136 },
+  clarification: { x: 520, y: 136 },
+  unsupported: { x: 520, y: 272 },
+  reflect: { x: 740, y: 196 },
+  memory_write: { x: 960, y: 196 },
+};
 
 export function graphConfigToFlow(config: GraphConfig): GraphFlow {
   return {
@@ -66,7 +78,10 @@ export function graphConfigToFlow(config: GraphConfig): GraphFlow {
     nodes: config.nodes.map((node, index) => ({
       id: node.id,
       type: node.type,
-      position: { x: (index % 3) * nodeGapX, y: Math.floor(index / 3) * nodeGapY },
+      position: preferredPositions[node.id] ?? {
+        x: (index % 4) * fallbackNodeGapX,
+        y: Math.floor(index / 4) * fallbackNodeGapY,
+      },
       data: {
         nodeType: node.type,
         config: node.config ?? {},

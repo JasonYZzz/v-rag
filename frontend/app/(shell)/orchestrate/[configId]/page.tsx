@@ -103,11 +103,11 @@ export default function OrchestrateEditorPage() {
           {(save.error as Error).message || "Failed to save draft"}
         </div>
       ) : null}
-      <div className="grid gap-4 xl:grid-cols-[260px_minmax(0,1fr)_340px]">
-        <aside className="space-y-4 rounded-[10px] border border-border bg-surface p-3">
+      <div className="flex flex-col gap-4 lg:flex-row lg:flex-wrap 2xl:flex-nowrap">
+        <aside className="space-y-4 rounded-[10px] border border-border bg-surface p-3 lg:w-[220px] lg:shrink-0 2xl:w-[240px]">
           <NodePalette nodes={registry.data ?? []} />
         </aside>
-        <section className="min-h-[620px]">
+        <section className="min-h-[620px] lg:min-w-0 lg:flex-1">
           <OrchestrationCanvas
             nodes={nodes}
             edges={edges}
@@ -119,7 +119,7 @@ export default function OrchestrateEditorPage() {
             onEdgeClick={(_event, edge: Edge<FlowEdgeData>) => selectEdge(edge.id)}
           />
         </section>
-        <aside className="space-y-4 rounded-[10px] border border-border bg-surface p-3">
+        <aside className="w-full space-y-4 rounded-[10px] border border-border bg-surface p-3 2xl:w-[340px] 2xl:shrink-0">
           <NodeParamForm node={selectedNode} schema={selectedRegistry?.config_schema ?? null} />
           {selectedEdge ? (
             <EdgeConditionEditor

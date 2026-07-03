@@ -58,7 +58,6 @@ export function Rail() {
       <div className="space-y-3">
         <BackendStatus />
         <ThemeToggle />
-        <div className="hidden px-2 font-mono text-[11px] text-muted md:block">P0-B shell</div>
       </div>
     </aside>
   );
