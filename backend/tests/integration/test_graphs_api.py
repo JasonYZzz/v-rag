@@ -66,3 +66,28 @@ async def test_graphs_create_draft_test_run_publish_and_rollback() -> None:
     listed = client.get("/graphs")
     assert listed.status_code == 200
     assert listed.json()[0]["id"] == config_id
+
+
+async def test_graphs_registry_exposes_node_whitelist() -> None:
+    """Registry endpoint should expose backend whitelisted node types."""
+
+    client = await _setup()
+
+    response = client.get("/graphs/registry")
+
+    assert response.status_code == 200
+    body = response.json()
+    types = {item["type"] for item in body}
+    assert {
+        "classifier",
+        "retrieve",
+        "generate",
+        "clarification",
+        "unsupported",
+        "memory_recall",
+        "memory_write",
+        "reflect",
+    }.issubset(types)
+    classifier = next(item for item in body if item["type"] == "classifier")
+    assert classifier["description"]
+    assert "config_schema" in classifier

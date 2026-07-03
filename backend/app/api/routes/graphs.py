@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 from app.core.db.session import get_session_factory
 from app.core.graph.config import GraphConfig
+from app.core.graph.nodes import register_all
 from app.core.graph.persistence import (
     create_graph,
     delete_graph,
@@ -17,6 +18,7 @@ from app.core.graph.persistence import (
     rollback_to,
     save_draft_version,
 )
+from app.core.graph.registry import registry
 from app.core.graph.runner import run
 from app.core.graph.state import VragState
 from app.deps import get_services
@@ -77,6 +79,23 @@ async def list_graphs_endpoint() -> list[dict[str, Any]]:
             }
             for graph in graphs
         ]
+
+
+@router.get("/registry")
+async def get_graph_registry() -> list[dict[str, Any]]:
+    """Return backend whitelisted node definitions."""
+
+    register_all()
+    return [
+        {
+            "type": defn.type,
+            "description": defn.description,
+            "config_schema": (
+                defn.config_schema.model_json_schema() if defn.config_schema is not None else None
+            ),
+        }
+        for defn in (registry.get(type_) for type_ in registry.list())
+    ]
 
 
 @router.get("/{config_id}")
