@@ -1,0 +1,6 @@
+fix = true
+
+[lint]
+extend-select = ["I", "UP", "B", "SIM", "RUF"]
+# 项目文档字符串与注释统一使用中文，允许全角标点（，。：等）
+ignore = ["RUF001", "RUF002", "RUF003"]

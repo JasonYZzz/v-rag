@@ -1,0 +1,42 @@
+[project]
+name = "v-rag-backend"
+version = "0.1.0"
+description = "v-rag Agentic RAG backend"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+    "sqlalchemy[asyncio]>=2.0.36",
+    "asyncpg>=0.30",
+    "alembic>=1.14",
+    "openai>=1.55",
+    "httpx>=0.28",
+    "pymupdf>=1.25",
+    "opentelemetry-sdk>=1.29",
+    "opentelemetry-instrumentation-fastapi>=0.50b0",
+    "langfuse>=2.60",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "respx>=0.21",
+    "ruff>=0.8",
+    "mypy>=1.13",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+ignore_missing_imports = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
