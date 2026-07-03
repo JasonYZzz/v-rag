@@ -68,11 +68,32 @@ Each phase is an independent deliverable with a demoable outcome.
 | **P4 Multimodal** | DocumentProfiler + parser routing + ColPali two-stage + OCR plugins + tables + citation |
 | **P5 Eval & Observability** | Golden sets + eval gates + v-rag Trace Schema + degradation policies |
 
-> **Status:** P0 is being planned. No runtime functionality yet.
+> **Status:** P0-A backend foundation is implemented on the backend feature branch.
 
 ## Quick Start
 
-> ⏳ Available after P0. For now, see the [design spec](./docs/superpowers/specs/2026-07-03-v-rag-tech-selection-design.md).
+```bash
+cd backend
+uv sync --extra dev
+uv run pytest -v
+uv run uvicorn app.main:app --host 0.0.0.0 --port 8000
+curl http://localhost:8000/health
+```
+
+Docker:
+
+```bash
+cd backend
+docker compose up -d
+curl http://localhost:8000/health
+docker compose down
+```
+
+Expected health response:
+
+```json
+{"status":"ok"}
+```
 
 ## Documentation
 

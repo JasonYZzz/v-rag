@@ -43,3 +43,18 @@ async def test_delete_removes_records() -> None:
     await store.delete(["a"])
 
     assert await store.search([1.0], top_k=5) == []
+
+
+async def test_zvec_store_indexes_and_filters(tmp_path) -> None:
+    """Zvec adapter should index and filter using the real Python binding."""
+
+    store = build_vector_store("zvec", path=str(tmp_path / "zvec"), dim=2)
+    await store.add(
+        ids=["a", "b"],
+        vectors=[[1.0, 0.0], [0.0, 1.0]],
+        metadata=[{"doc": "1", "page": 1}, {"doc": "2", "page": 1}],
+    )
+
+    hits = await store.search([1.0, 0.0], top_k=2, filter={"doc": "1"})
+
+    assert [hit.id for hit in hits] == ["a"]
