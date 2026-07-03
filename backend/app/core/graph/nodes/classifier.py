@@ -10,6 +10,7 @@ LOW_THRESHOLD = 0.60
 
 RULES: dict[Intent, list[str]] = {
     Intent.CHITCHAT: ["hi", "hello"],
+    Intent.COMPLEX_TASK: ["对比", "比较", "三款", "建议", "compare"],
     Intent.KNOWLEDGE_QA: ["what", "how", "why", "文档", "产品"],
     Intent.UNSUPPORTED: ["密码", "信用卡", "删除账号"],
 }

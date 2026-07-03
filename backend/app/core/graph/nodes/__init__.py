@@ -5,11 +5,14 @@ from pydantic import BaseModel, Field
 from app.core.graph.nodes import (
     clarification,
     classifier,
+    executor,
     generate,
     memory_recall,
     memory_write,
+    planner,
     reflect,
     retrieve,
+    synthesizer,
     unsupported,
 )
 from app.core.graph.registry import NodeDefinition, registry
@@ -32,6 +35,9 @@ def register_all() -> None:
 
     definitions = [
         NodeDefinition("classifier", "Cascade intent classifier", None, classifier.classify),
+        planner.DEFN,
+        executor.DEFN,
+        synthesizer.DEFN,
         NodeDefinition("retrieve", "Retrieve context chunks", RetrieveConfig, retrieve.retrieve),
         NodeDefinition("generate", "Generate final answer", None, generate.generate),
         NodeDefinition(
@@ -40,7 +46,7 @@ def register_all() -> None:
         NodeDefinition("unsupported", "Reject unsupported requests", MessageConfig, unsupported.unsupported),
         NodeDefinition("memory_recall", "P1 memory recall placeholder", None, memory_recall.memory_recall),
         NodeDefinition("memory_write", "P1 memory write placeholder", None, memory_write.memory_write),
-        NodeDefinition("reflect", "P1 reflection placeholder", None, reflect.reflect),
+        NodeDefinition("reflect", "Judge answer quality and retry branches", None, reflect.reflect),
     ]
     for defn in definitions:
         if not registry.has(defn.type):

@@ -5,7 +5,6 @@ from app.core.graph.nodes.clarification import clarification
 from app.core.graph.nodes.generate import generate
 from app.core.graph.nodes.memory_recall import memory_recall
 from app.core.graph.nodes.memory_write import memory_write
-from app.core.graph.nodes.reflect import reflect
 from app.core.graph.nodes.retrieve import retrieve
 from app.core.graph.nodes.unsupported import unsupported
 from app.core.graph.registry import registry
@@ -90,14 +89,13 @@ async def test_terminal_message_nodes() -> None:
     assert reject["generation"] == "reject"
 
 
-async def test_stub_nodes_return_p1_placeholders() -> None:
-    """P1 stub nodes should return deterministic placeholder patches."""
+async def test_memory_nodes_return_placeholders() -> None:
+    """Memory nodes should return deterministic placeholder patches."""
 
     state = VragState(query="q", messages=[])
 
     assert await memory_recall(state, {}, None) == {"memory_hits": []}
     assert await memory_write(state, {}, None) == {}
-    assert await reflect(state, {}, None) == {"reflection": {"quality": "unchecked"}}
 
 
 def test_register_all_registers_expected_nodes_once() -> None:
@@ -110,10 +108,13 @@ def test_register_all_registers_expected_nodes_once() -> None:
     assert registry.list() == [
         "clarification",
         "classifier",
+        "executor",
         "generate",
         "memory_recall",
         "memory_write",
+        "planner",
         "reflect",
         "retrieve",
+        "synthesizer",
         "unsupported",
     ]

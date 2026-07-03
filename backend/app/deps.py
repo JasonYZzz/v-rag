@@ -7,6 +7,8 @@ from app.core.provider.factory import embedder_from_settings, llm_from_settings
 from app.core.retrieval.engine import RetrievalEngine
 from app.core.storage.base import VectorStore
 from app.core.storage.factory import build_vector_store
+from app.core.tools.builtin import register_builtin_tools
+from app.core.tools.registry import tool_registry
 
 _globals: dict[str, object] = {}
 
@@ -22,6 +24,7 @@ def init_deps(settings: Settings | None = None) -> None:
         path=loaded_settings.zvec_path,
         dim=loaded_settings.embed_dim,
     )
+    register_builtin_tools(tool_registry)
     retrieval = RetrievalEngine(embedder, store)
     _globals.clear()
     _globals.update(
@@ -30,6 +33,7 @@ def init_deps(settings: Settings | None = None) -> None:
         llm=llm_from_settings(loaded_settings),
         store=store,
         retrieval=retrieval,
+        tools=tool_registry,
     )
 
 
@@ -61,6 +65,7 @@ def get_services() -> object:
             "embedder": _globals["embedder"],
             "llm": _globals["llm"],
             "retrieval": _globals["retrieval"],
+            "tools": _globals["tools"],
         },
     )()
 

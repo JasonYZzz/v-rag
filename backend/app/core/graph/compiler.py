@@ -9,6 +9,8 @@ from langchain_core.runnables import RunnableConfig
 from langgraph.graph import END, START, StateGraph
 
 from app.core.graph.config import GraphConfig, GraphEdgeSpec, GraphNodeSpec
+from app.core.graph.nodes import executor as executor_node
+from app.core.graph.nodes import reflect as reflect_node
 from app.core.graph.nodes import register_all
 from app.core.graph.registry import NodeDefinition, registry
 from app.core.graph.state import Intent, VragState
@@ -105,6 +107,21 @@ def _compile_cached(config_json: str) -> CompiledGraph:
     for edge in config.edges:
         edges_by_source.setdefault(edge.src, []).append(edge)
     for source, edges in edges_by_source.items():
+        source_node = nodes_by_id[source]
+        if source_node.type == "executor":
+            graph.add_conditional_edges(
+                source,
+                executor_node.should_continue,
+                _node_router_destinations(config, edges, {"executor", "synthesizer"}),
+            )
+            continue
+        if source_node.type == "reflect":
+            graph.add_conditional_edges(
+                source,
+                reflect_node.retry_target,
+                _node_router_destinations(config, edges, {"retrieve", "planner", "memory_write"}),
+            )
+            continue
         conditional = [edge for edge in edges if edge.condition]
         unconditional = [edge for edge in edges if not edge.condition]
         if conditional:
@@ -156,6 +173,17 @@ def _make_router(
         return END
 
     return route
+
+
+def _node_router_destinations(
+    config: GraphConfig, edges: list[GraphEdgeSpec], candidates: set[str]
+) -> dict[Hashable, str]:
+    ids = {node.id for node in config.nodes}
+    destinations: dict[Hashable, str] = {edge.dst: edge.dst for edge in edges}
+    for candidate in candidates & ids:
+        destinations[candidate] = candidate
+    destinations[END] = END
+    return destinations
 
 
 def _condition_matches(state: VragState, condition: str) -> bool:

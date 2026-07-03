@@ -12,6 +12,19 @@ from app.core.graph.state import Intent, VragState
 class Services:
     """Placeholder services for graph execution."""
 
+    def __init__(self) -> None:
+        self.llm = _LLM()
+
+
+class _LLM:
+    async def complete(self, prompt: str, *, system: str = "") -> str:
+        _ = system
+        if "Decompose the query" in prompt:
+            return '{"steps": [{"type": "generate", "input": "draft"}]}'
+        if "Is this answer good" in prompt:
+            return '{"quality": "poor", "reason": "needs retry"}'
+        return f"done: {prompt}"
+
 
 def _config(raw: dict[str, Any]) -> GraphConfig:
     return GraphConfig.model_validate(raw)
@@ -114,3 +127,84 @@ async def test_compile_and_run_routes_conditionally_and_records_node_io() -> Non
     assert final["generation"].startswith("需要更多信息")
     assert [entry["node_id"] for entry in final["node_io"]] == ["memory_recall", "clarify"]
     assert compile_graph(config) is compiled
+
+
+async def test_compile_routes_executor_until_plan_is_complete() -> None:
+    """Compiler should use executor's node-level conditional loop."""
+
+    config = _config(
+        {
+            "entry": "executor",
+            "nodes": [
+                {"id": "executor", "type": "executor"},
+                {"id": "synthesizer", "type": "synthesizer"},
+            ],
+            "edges": [{"from": "executor", "to": "synthesizer"}],
+            "exits": ["synthesizer"],
+        }
+    )
+
+    final = await compile_graph(config).ainvoke(
+        VragState(
+            query="q",
+            messages=[],
+            plan=[
+                {"type": "generate", "input": "first"},
+                {"type": "generate", "input": "second"},
+            ],
+            current_step=0,
+            step_results=[],
+        ),
+        config={"configurable": {"services": Services()}},
+    )
+
+    assert final["current_step"] == 2
+    assert len(final["step_results"]) == 2
+    assert [entry["node_id"] for entry in final["node_io"]] == [
+        "executor",
+        "executor",
+        "synthesizer",
+    ]
+
+
+async def test_compile_routes_poor_complex_reflection_back_to_planner_until_capped() -> None:
+    """Reflect should use its node-level router for bounded branch retries."""
+
+    config = _config(
+        {
+            "entry": "planner",
+            "nodes": [
+                {"id": "planner", "type": "planner"},
+                {"id": "executor", "type": "executor"},
+                {"id": "synthesizer", "type": "synthesizer"},
+                {"id": "reflect", "type": "reflect"},
+                {"id": "memory_write", "type": "memory_write"},
+            ],
+            "edges": [
+                {"from": "planner", "to": "executor"},
+                {"from": "executor", "to": "synthesizer"},
+                {"from": "synthesizer", "to": "reflect"},
+                {"from": "reflect", "to": "memory_write"},
+            ],
+            "exits": ["memory_write"],
+        }
+    )
+
+    final = await compile_graph(config).ainvoke(
+        VragState(query="q", intent=Intent.COMPLEX_TASK, messages=[]),
+        config={"configurable": {"services": Services()}},
+    )
+
+    assert final["reflect_rounds"] == 2
+    assert final["reflection"]["retry"] is False
+    assert [entry["node_id"] for entry in final["node_io"]] == [
+        "planner",
+        "executor",
+        "synthesizer",
+        "reflect",
+        "planner",
+        "executor",
+        "synthesizer",
+        "reflect",
+        "memory_write",
+    ]

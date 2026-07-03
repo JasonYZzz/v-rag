@@ -72,6 +72,19 @@ async def test_rule_match_short_circuits_to_unsupported() -> None:
     assert result["route_trace"]["reason"] == "rule"
 
 
+async def test_complex_task_rule_takes_priority_over_product_keyword() -> None:
+    """Multi-step comparison requests should route to complex_task."""
+
+    result = await classify(
+        VragState(query="对比 A B C 三款产品并给建议", messages=[]),
+        {},
+        _services(),
+    )
+
+    assert result["intent"] is Intent.COMPLEX_TASK
+    assert result["route_trace"]["reason"] == "rule"
+
+
 async def test_high_confidence_semantic_route_is_direct() -> None:
     """High semantic confidence should route directly."""
 
