@@ -22,6 +22,7 @@ describe("Rail", () => {
     render(<Rail />);
 
     expect(screen.getByText("Chat")).toBeInTheDocument();
+    expect(screen.getByText("Orchestrate")).toBeInTheDocument();
     expect(screen.getByText("Knowledge")).toBeInTheDocument();
     expect(screen.getByText("Config")).toBeInTheDocument();
     expect(screen.getByText("Health")).toBeInTheDocument();

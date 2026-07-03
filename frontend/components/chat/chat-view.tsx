@@ -85,7 +85,9 @@ export function ChatView() {
           )}
           {stream.error ? (
             <div className="rounded-[8px] border border-danger/25 bg-danger/10 p-3 text-sm text-danger">
-              {stream.error}
+              {stream.error.includes("no published graph")
+                ? "No published routing graph is available. Open Orchestrate and publish a graph."
+                : stream.error}
             </div>
           ) : null}
         </div>

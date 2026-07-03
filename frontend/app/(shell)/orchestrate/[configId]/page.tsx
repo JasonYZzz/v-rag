@@ -95,6 +95,14 @@ export default function OrchestrateEditorPage() {
           </Button>
         </div>
       </header>
+      <div className="rounded-[10px] border border-warn/30 bg-warn/10 p-3 text-sm text-muted xl:hidden">
+        Canvas editing is optimized for desktop width. This view remains available for review on smaller screens.
+      </div>
+      {save.isError ? (
+        <div className="rounded-[10px] border border-danger/30 bg-danger/10 p-3 text-sm text-danger">
+          {(save.error as Error).message || "Failed to save draft"}
+        </div>
+      ) : null}
       <div className="grid gap-4 xl:grid-cols-[260px_minmax(0,1fr)_340px]">
         <aside className="space-y-4 rounded-[10px] border border-border bg-surface p-3">
           <NodePalette nodes={registry.data ?? []} />
