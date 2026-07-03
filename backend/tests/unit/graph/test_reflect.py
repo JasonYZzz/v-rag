@@ -1,5 +1,7 @@
 """Reflect node tests."""
 
+from typing import cast
+
 from app.core.graph.nodes.reflect import MAX_REFLECT_ROUNDS, reflect, retry_target
 from app.core.graph.state import Intent, VragState
 
@@ -37,7 +39,7 @@ async def test_reflect_records_good_verdict_without_retry() -> None:
 
     assert result["reflection"] == {"quality": "good", "reason": "ok", "retry": False}
     assert result["reflect_rounds"] == 1
-    assert retry_target(VragState(query="q", messages=[], **result)) == "memory_write"
+    assert retry_target(cast(VragState, {"query": "q", "messages": [], **result})) == "memory_write"
 
 
 async def test_reflect_routes_poor_quality_to_branch_retry_target() -> None:
@@ -48,10 +50,17 @@ async def test_reflect_routes_poor_quality_to_branch_retry_target() -> None:
         {},
         Services('{"quality": "poor", "reason": "missing evidence"}'),
     )
-    complex_state = VragState(query="q", messages=[], intent=Intent.COMPLEX_TASK, **result)
+    complex_state = cast(
+        VragState, {"query": "q", "messages": [], "intent": Intent.COMPLEX_TASK, **result}
+    )
 
     assert result["reflection"]["retry"] is True
-    assert retry_target(VragState(query="q", messages=[], intent=Intent.KNOWLEDGE_QA, **result)) == "retrieve"
+    assert (
+        retry_target(
+            cast(VragState, {"query": "q", "messages": [], "intent": Intent.KNOWLEDGE_QA, **result})
+        )
+        == "retrieve"
+    )
     assert retry_target(complex_state) == "planner"
 
 
@@ -74,4 +83,9 @@ async def test_reflect_caps_retry_rounds() -> None:
         "reflection": {"quality": "capped", "retry": False},
         "reflect_rounds": MAX_REFLECT_ROUNDS,
     }
-    assert retry_target(VragState(query="q", messages=[], intent=Intent.COMPLEX_TASK, **result)) == "memory_write"
+    assert (
+        retry_target(
+            cast(VragState, {"query": "q", "messages": [], "intent": Intent.COMPLEX_TASK, **result})
+        )
+        == "memory_write"
+    )

@@ -1,6 +1,6 @@
 """Executor node tests."""
 
-from typing import Any
+from typing import Any, cast
 
 from app.core.graph.nodes.executor import execute_step, should_continue
 from app.core.graph.state import VragState
@@ -68,11 +68,11 @@ async def test_executor_runs_one_step_at_a_time_and_advances_cursor() -> None:
     services = Services()
 
     first = await execute_step(state, {}, services)
-    state.update(first)
+    state = cast(VragState, {**state, **first})
     second = await execute_step(state, {}, services)
-    state.update(second)
+    state = cast(VragState, {**state, **second})
     third = await execute_step(state, {}, services)
-    state.update(third)
+    state = cast(VragState, {**state, **third})
 
     assert state["current_step"] == 3
     assert len(state["step_results"]) == 3
@@ -97,7 +97,7 @@ async def test_executor_records_unknown_step_type_as_error() -> None:
 
     assert result["current_step"] == 1
     assert result["step_results"][0]["error"] == "unknown step type: unknown"
-    assert should_continue(VragState(query="q", messages=[], **result)) == "synthesizer"
+    assert should_continue(cast(VragState, {"query": "q", "messages": [], **result})) == "synthesizer"
 
 
 def test_should_continue_returns_executor_until_plan_is_complete() -> None:
