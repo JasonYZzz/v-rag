@@ -8,6 +8,7 @@ from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
 from app.api.router import api_router
 from app.config import get_settings
+from app.core.db.session import create_schema
 from app.core.observability.tracing import init_telemetry
 from app.deps import init_deps
 
@@ -19,6 +20,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
     init_telemetry(settings.otel_exporter_otlp_endpoint)
     init_deps()
+    await create_schema()
     yield
 
 

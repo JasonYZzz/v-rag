@@ -1,0 +1,98 @@
+@import "tailwindcss";
+
+:root {
+  --bg: oklch(0.99 0.005 250);
+  --surface: oklch(0.975 0.006 250);
+  --surface-2: oklch(0.955 0.007 250);
+  --border: oklch(0.92 0.008 250);
+  --text: oklch(0.32 0.02 255);
+  --muted: oklch(0.55 0.015 255);
+  --accent: oklch(0.62 0.14 235);
+  --accent-fg: oklch(0.99 0.005 250);
+  --success: oklch(0.7 0.15 155);
+  --warn: oklch(0.78 0.14 75);
+  --danger: oklch(0.65 0.18 25);
+  --shadow: oklch(0.45 0.04 255 / 0.08);
+  --radius: 10px;
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+.dark {
+  --bg: oklch(0.165 0.012 255);
+  --surface: oklch(0.205 0.012 255);
+  --surface-2: oklch(0.235 0.014 255);
+  --border: oklch(0.27 0.015 255);
+  --text: oklch(0.94 0.006 250);
+  --muted: oklch(0.66 0.012 255);
+  --accent: oklch(0.7 0.13 235);
+  --accent-fg: oklch(0.16 0.012 255);
+  --shadow: oklch(0.08 0.02 255 / 0.35);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-success: var(--success);
+  --color-warn: var(--warn);
+  --color-danger: var(--danger);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+}
+
+body {
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+::selection {
+  background: oklch(0.78 0.09 235 / 0.35);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

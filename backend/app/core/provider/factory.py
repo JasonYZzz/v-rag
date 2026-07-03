@@ -2,6 +2,7 @@
 
 from app.config import Settings
 from app.core.provider.base import EmbeddingProvider, LLMProvider
+from app.core.provider.mock_provider import MockEmbedding, MockLLM
 from app.core.provider.ollama_provider import OllamaEmbedding, OllamaLLM
 from app.core.provider.openai_provider import OpenAIEmbedding, OpenAILLM
 
@@ -22,6 +23,8 @@ def build_llm_provider(
         return OpenAILLM(api_key, base_url or "https://api.openai.com/v1", model or _OPENAI_LLM_MODEL)
     if kind == "ollama":
         return OllamaLLM(base_url or "http://localhost:11434", model or "qwen2.5:7b")
+    if kind == "mock":
+        return MockLLM()
     raise ValueError(f"unknown llm provider: {kind}")
 
 
@@ -39,6 +42,8 @@ def build_embedding_provider(
         return OpenAIEmbedding(api_key, base_url or "https://api.openai.com/v1", model or _OPENAI_EMBED_MODEL, dim)
     if kind == "ollama":
         return OllamaEmbedding(base_url or "http://localhost:11434", model or "nomic-embed-text", dim)
+    if kind == "mock":
+        return MockEmbedding(dim)
     raise ValueError(f"unknown embedding provider: {kind}")
 
 

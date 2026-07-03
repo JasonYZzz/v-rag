@@ -89,6 +89,25 @@ curl http://localhost:8000/health
 docker compose down
 ```
 
+Frontend admin console:
+
+```bash
+cd frontend
+pnpm install
+pnpm dev
+```
+
+For local end-to-end UI testing without external model keys, start the backend with mock providers:
+
+```bash
+cd backend
+VRAG_DATABASE_URL='sqlite+aiosqlite:///./dev-vrag.sqlite3' \
+VRAG_VECTOR_STORE=inmemory \
+VRAG_LLM_PROVIDER=mock \
+VRAG_EMBED_PROVIDER=mock \
+uv run uvicorn app.main:app --host 127.0.0.1 --port 8000
+```
+
 Expected health response:
 
 ```json

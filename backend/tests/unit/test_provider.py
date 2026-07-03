@@ -33,3 +33,13 @@ async def test_openai_llm_stream_yields_chunks() -> None:
     chunks = [chunk async for chunk in llm.stream("ping")]
 
     assert chunks == ["Hi"]
+
+
+async def test_mock_provider_is_deterministic() -> None:
+    """Mock providers should work without network access."""
+
+    embedder = build_embedding_provider("mock", dim=4)
+    llm = build_llm_provider("mock")
+
+    assert await embedder.embed(["ab"]) == [[0.0, 1.0, 1.0, 0.0]]
+    assert await llm.complete("hello") == "I found context for that."

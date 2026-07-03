@@ -34,6 +34,7 @@ htmlcov/
 coverage.xml
 *.cover
 .cache
+*.tsbuildinfo
 
 # Virtualenvs
 .venv/
