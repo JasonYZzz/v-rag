@@ -8,8 +8,10 @@ import {
   ReactFlow,
   type ReactFlowProps,
 } from "@xyflow/react";
+import { useCallback } from "react";
 
 import type { FlowEdgeData, FlowNodeData } from "@/lib/flow-graph";
+import { useOrchestrationStore } from "@/lib/orchestration-store";
 import { cn } from "@/lib/utils";
 
 type CanvasProps = {
@@ -33,8 +35,23 @@ export function OrchestrationCanvas({
   readonly = false,
   className,
 }: CanvasProps) {
+  const addNode = useOrchestrationStore((state) => state.addNode);
+  const handleDrop = useCallback(
+    (event: React.DragEvent<HTMLDivElement>) => {
+      const type = event.dataTransfer.getData("application/vrag-node-type");
+      if (type) {
+        event.preventDefault();
+        addNode(type);
+      }
+    },
+    [addNode],
+  );
   return (
-    <div className={cn("h-full min-h-[520px] overflow-hidden rounded-[10px] border border-border", className)}>
+    <div
+      className={cn("h-full min-h-[520px] overflow-hidden rounded-[10px] border border-border", className)}
+      onDragOver={(event) => event.preventDefault()}
+      onDrop={handleDrop}
+    >
       <ReactFlow
         nodes={nodes}
         edges={edges}
